@@ -1,5 +1,6 @@
 import discord
 import config
+from keep_alive import keep_alive
 from utils import emoji
 from rumble_royale.rumble_royale_handler import RumbleRoyaleHandler
 from pixxie_bot.pixxie_bot_handler import PixxieBotHandler
@@ -37,6 +38,9 @@ intents.members = True
 intents.message_content = True
 
 client = MyClient(intents=intents)
+
+# Startet den Webserver
+keep_alive()
 
 # Bot starten
 client.run(config.BOT_TOKEN)
