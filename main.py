@@ -1,3 +1,8 @@
+import os
+
+# Installiert alle fehlenden Pakete aus requirements.txt
+os.system("pip install -r requirements.txt")
+
 import discord
 import config
 from keep_alive import keep_alive
@@ -38,9 +43,6 @@ intents.members = True
 intents.message_content = True
 
 client = MyClient(intents=intents)
-
-# Startet den Webserver
-keep_alive()
 
 # Bot starten
 client.run(config.BOT_TOKEN)
