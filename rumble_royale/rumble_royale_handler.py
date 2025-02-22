@@ -24,7 +24,7 @@ class RumbleRoyaleHandler:
     #
     async def on_new_battle(self, message: discord.Message, embed: discord.Embed):
         if embed.title and embed.title.startswith(rumble_royale_config.MESSAGE_TITLE_HOSTED_BY):
-            role_ping = RoleUtils.find_role_by_id(message.guild.roles, rumble_royale_config.ROLE_PING_ID)
+            role_ping = RoleUtils.find_role_by_guild(rumble_royale_config.ROLE_NEW_BATTLE_PING_IDS, message.guild)
             if not role_ping:
                 print(f'Rumble Royale Role Ping nicht gefunden')
                 return
