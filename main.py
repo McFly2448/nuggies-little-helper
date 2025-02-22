@@ -21,6 +21,9 @@ class MyClient(discord.Client):
 
     async def on_message(self, message):
         """Wird aufgerufen, wenn eine neue Nachricht gesendet wird."""
+        # Ignoriere Message vom Bot selber
+        if message.author == self.user:
+            return
         if message.author.bot:  # Reagiere nur auf bestimmte Bots
             if message.author.id == config.BOT_APP_ID_RUMBLE_ROYALE:
                 await self.rumble_royale_handler.handle_message(message)
@@ -29,6 +32,9 @@ class MyClient(discord.Client):
 
     async def on_message_edit(self, before, after):
         """Wird aufgerufen, wenn eine Nachricht bearbeitet wird."""
+        # Ignoriere Message vom Bot selber
+        if after.author == self.user:
+            return
         if after.author.bot: # Reagiere nur auf bestimmte Bots
             if after.author.id == config.BOT_APP_ID_RUMBLE_ROYALE:
                 await self.rumble_royale_handler.handle_message(after)
