@@ -1,6 +1,6 @@
 import discord
 import re
-from rumble_royale import rumble_royale_config
+from . import rumble_royale_config
 from utils import emoji
 from utils.role_utils import RoleUtils
 from utils.user_utils import UserUtils
@@ -37,5 +37,5 @@ class RumbleRoyaleHandler:
         if embed.title and rumble_royale_config.MESSAGE_TITLE_WINNER in embed.title:                     
             mentions = UserUtils.find_user_in_text(message)
             if mentions:
-                mention_text = " ".join(f"{user.mention}" for user in mentions)
+                mention_text = " ".join(f"{RoleUtils.get_user_greeting(user, message.guild)}" for user in mentions)
                 await message.channel.send(f'congratulation {mention_text} {emoji.EMOJI_EEVEE_CLAP}{emoji.EMOJI_EEVEE_CLAP}{emoji.EMOJI_EEVEE_CLAP}')

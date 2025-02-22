@@ -1,5 +1,5 @@
 import discord
-from pixxie_bot import pixxie_bot_config
+from . import pixxie_bot_config
 
 class PixxieBotHandler:
     async def handle_message(self, message: discord.Message):
