@@ -14,16 +14,16 @@ class RumbleRoyaleHandler:
         if message.embeds:
             for embed in message.embeds:
                 # Reagiere auf ein Kampf Start
-                await self.on_new_battle(message, embed)
+                await self.on_command_battle(message, embed)
                 
                 # Reagiere auf einen Gewinner
-                await self.on_new_winner(message, embed)
+                await self.on_event_winner(message, embed)
                 
     #
     # Rumble Royale Bot - Kampf Start Nachricht
     #
-    async def on_new_battle(self, message: discord.Message, embed: discord.Embed):
-        if embed.title and embed.title.startswith(rumble_royale_config.MESSAGE_TITLE_HOSTED_BY):
+    async def on_command_battle(self, message: discord.Message, embed: discord.Embed):
+        if embed.title and embed.title.startswith(rumble_royale_config.EMBED_TITLE_HOSTED_BY):
             role_ping = RoleUtils.find_role_by_guild(rumble_royale_config.ROLE_NEW_BATTLE_PING_IDS, message.guild)
             if not role_ping:
                 print(f'Rumble Royale Role Ping nicht gefunden')
@@ -33,8 +33,8 @@ class RumbleRoyaleHandler:
     #
     # Rumble Royale Bot - Sieger Nachricht
     #
-    async def on_new_winner(self, message: discord.Message, embed: discord.Embed):
-        if embed.title and rumble_royale_config.MESSAGE_TITLE_WINNER in embed.title:                     
+    async def on_event_winner(self, message: discord.Message, embed: discord.Embed):
+        if embed.title and rumble_royale_config.EMBED_TITLE_WINNER in embed.title:                     
             mentions = UserUtils.find_user_in_text(message)
             if mentions:
                 mention_text = " ".join(f"{RoleUtils.get_user_greeting(user, message.guild)}" for user in mentions)
