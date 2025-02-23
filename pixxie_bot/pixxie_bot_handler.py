@@ -46,4 +46,4 @@ class PixxieBotHandler:
             mentions = UserUtils.find_user_in_text(message)
             if mentions:
                 mention_text = " ".join(f"{RoleUtils.get_user_greeting(user, message.guild)}" for user in mentions)
-                await message.channel.send(f'congratulation {mention_text} {emoji.EMOJI_EEVEE_CLAP}{emoji.EMOJI_EEVEE_CLAP}{emoji.EMOJI_EEVEE_CLAP}')
+                await message.channel.send(f'congratulations {mention_text} {emoji.EMOJI_EEVEE_CLAP}{emoji.EMOJI_EEVEE_CLAP}{emoji.EMOJI_EEVEE_CLAP}')

@@ -38,4 +38,21 @@ class RumbleRoyaleHandler:
             mentions = UserUtils.find_user_in_text(message)
             if mentions:
                 mention_text = " ".join(f"{RoleUtils.get_user_greeting(user, message.guild)}" for user in mentions)
-                await message.channel.send(f'congratulation {mention_text} {emoji.EMOJI_EEVEE_CLAP}{emoji.EMOJI_EEVEE_CLAP}{emoji.EMOJI_EEVEE_CLAP}')
+                await message.channel.send(f'congratulations {mention_text} {emoji.EMOJI_EEVEE_CLAP}{emoji.EMOJI_EEVEE_CLAP}{emoji.EMOJI_EEVEE_CLAP}')
+                await self.send_reminder_for_battle(message.channel)
+
+    #
+    # Rumble Royale Bot - Erinnerung an den /battle bzw. /start Initator senden
+    #
+    async def send_reminder_for_battle(self, channel: discord.channel):
+        # Nachrichtenverlauf durchsuchen (letzte 100 Nachrichten)
+        async for msg in channel.history(limit=100, oldest_first=False):
+            if msg.author.id == rumble_royale_config.BOT_APP_ID and msg.embeds and msg.interaction_metadata:
+                for embed in msg.embeds:
+                    if embed.title and embed.title.startswith(rumble_royale_config.EMBED_TITLE_HOSTED_BY):
+                        command_user = msg.interaction_metadata.user
+                        if command_user:
+                            await channel.send(f"Hey {command_user.mention}, don't forget to start the next battle with `/battle`!")
+                            return  # Stoppe, sobald der erste Treffer gefunden wurde
+
+
