@@ -6,6 +6,7 @@ os.system("pip install -r requirements.txt")
 import discord
 import config
 from keep_alive import keep_alive
+from scheduler import Scheduler
 from utils import emoji
 from rumble_royale.rumble_royale_handler import RumbleRoyaleHandler
 from pixxie_bot.pixxie_bot_handler import PixxieBotHandler
@@ -17,7 +18,9 @@ class MyClient(discord.Client):
         self.pixxie_bot_handler = PixxieBotHandler()
 
     async def on_ready(self):
-        print(f'{emoji.EMOJI_CHECKMARK_GREEN} Bot ist eingeloggt als {self.user}')
+        print(f'{emoji.CHECKMARK} Bot ist eingeloggt als {self.user}')
+        scheduler = Scheduler(client)
+        client.loop.create_task(scheduler.start())
 
     async def on_message(self, message):
         """Wird aufgerufen, wenn eine neue Nachricht gesendet wird."""
