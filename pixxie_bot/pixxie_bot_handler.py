@@ -5,24 +5,27 @@ from utils.role_utils import RoleUtils
 from utils.user_utils import UserUtils
 
 class PixxieBotHandler:
-    async def handle_message(self, message: discord.Message):
-        if message.author.id != pixxie_bot_config.BOT_APP_ID:
+    async def handle_message(self, messageOld: discord.Message, messageNew: discord.Message):
+        if messageNew.author.id != pixxie_bot_config.BOT_APP_ID:
             return  # Ignorieren, wenn es nicht der gesuchte Benutzer ist
         
         """Verarbeitet Nachrichten vom Hangry Games Bot"""
-        if message.embeds:
-            for embed in message.embeds:
+        if messageNew.embeds:
+            for embed in messageNew.embeds:
                 # Reagiere auf ein Hangry Games Start
-                await self.on_command_hangrygames_new(message, embed)
+                await self.on_command_hangrygames_new(messageOld, messageNew, embed)
                 
                 # Reagiere auf einen Gewinner
-                await self.on_event_winner(message, embed)
+                await self.on_event_winner(messageNew, embed)
     
     #
     # Pixxie Bot - Hangry Games - Start Nachricht
     #
-    async def on_command_hangrygames_new(self, message: discord.Message, embed: discord.Embed):
-        if not embed.title or not embed.description:
+    async def on_command_hangrygames_new(self, messageOld: discord.Message, messageNew: discord.Message, embed: discord.Embed):
+        # Es darf nur bei der Neuanlage der Nachricht (messageOld == None) reagieren. 
+        # Ist die messageOld vorhanden, dann ist es keine Neuanlage und man verlässt die Methode
+        # Und es braucht einen embed mit title und description
+        if messageOld or not embed or not embed.title or not embed.description:
             return
         
         # Überprüfen, ob der Titel dem gewünschten Muster entspricht
@@ -32,11 +35,11 @@ class PixxieBotHandler:
         first_line = embed.description.split("\n")[0] if embed.description else ""
 
         if title_match and first_line == pixxie_bot_config.EMBED_DESCRIPTION_SETTING_THE_TABLE:
-            role_ping = RoleUtils.find_role_by_guild(pixxie_bot_config.ROLE_HANGRY_GAMES_PING_IDS, message.guild)
+            role_ping = RoleUtils.find_role_by_guild(pixxie_bot_config.ROLE_HANGRY_GAMES_PING_IDS, messageNew.guild)
             if not role_ping:
                 print(f'Hangry Games Role Ping nicht gefunden')
                 return
-            await message.channel.send(f'{role_ping.mention} - a new hangry games has been initiated!')
+            await messageNew.channel.send(f'{role_ping.mention} - a new hangry games has been initiated!')
     
     #
     # Pixxie Bot - Hangry Games - Sieger Nachricht

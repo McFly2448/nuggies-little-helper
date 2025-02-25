@@ -31,7 +31,7 @@ class MyClient(discord.Client):
             if message.author.id == config.BOT_APP_ID_RUMBLE_ROYALE:
                 await self.rumble_royale_handler.handle_message(message)
             elif message.author.id == config.BOT_APP_ID_PIXXIE_BOT:
-                await self.pixxie_bot_handler.handle_message(message)
+                await self.pixxie_bot_handler.handle_message(None, message)
 
     async def on_message_edit(self, before, after):
         """Wird aufgerufen, wenn eine Nachricht bearbeitet wird."""
@@ -42,7 +42,7 @@ class MyClient(discord.Client):
             if after.author.id == config.BOT_APP_ID_RUMBLE_ROYALE:
                 await self.rumble_royale_handler.handle_message(after)
             elif after.author.id == config.BOT_APP_ID_PIXXIE_BOT:
-                await self.pixxie_bot_handler.handle_message(after)
+                await self.pixxie_bot_handler.handle_message(before, after)
 
 # Intents aktivieren
 intents = discord.Intents.default()
