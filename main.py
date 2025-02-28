@@ -15,7 +15,7 @@ class MyClient(discord.Client):
     def __init__(self, *, intents):
         super().__init__(intents=intents)
         self.rumble_royale_handler = RumbleRoyaleHandler()
-        self.pixxie_bot_handler = PixxieBotHandler()
+        self.pixxie_bot_handler = PixxieBotHandler(self)
 
     async def on_ready(self):
         print(f'{emoji.CHECKMARK} Bot ist eingeloggt als {self.user}')
