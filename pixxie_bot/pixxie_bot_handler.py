@@ -1,4 +1,5 @@
 import discord
+from discord.ext import commands
 from datetime import datetime, timezone, timedelta
 from . import pixxie_bot_config
 from utils import emoji
@@ -7,8 +8,8 @@ from utils.user_utils import UserUtils
 from utils.mention_utils import MentionUtils
 
 class PixxieBotHandler:
-    def __init__(self, client: discord.Client):
-        self.client = client  # Speichert den Bot-Client
+    def __init__(self, bot: commands.Bot):
+        self.bot = bot  # Speichert den Bot-Client
 
     async def handle_message(self, messageOld: discord.Message, messageNew: discord.Message):
         if messageNew.author.id != pixxie_bot_config.BOT_APP_ID:
@@ -84,9 +85,9 @@ class PixxieBotHandler:
     #
     async def send_reminder_for_hangry_games_in_channel(self, channel_id: int, mention_id: int):
         """Liest Nachrichten, bis das Kriterium erfüllt ist oder alle Nachrichten durch sind."""
-        channel = self.client.get_channel(channel_id)
+        channel = self.bot.get_channel(channel_id)
         if not channel:
-            channel = await self.client.fetch_channel(channel_id)
+            channel = await self.bot.fetch_channel(channel_id)
         if not channel:
             print(f"Fehler: Kanal {channel_id} nicht gefunden.")
             return
@@ -112,7 +113,7 @@ class PixxieBotHandler:
                 break
 
             for message in messages:
-                if message.author.id == self.client.user.id and message.content.startswith("Hey ") and message.content.endswith(" don't forget to join!"):
+                if message.author.id == self.bot.user.id and message.content.startswith("Hey ") and message.content.endswith(" don't forget to join!"):
                     # Wenn man die letzte Erinnerung findet, dann ist eine erneute Erinnerung nicht notwendig
                     return
                 

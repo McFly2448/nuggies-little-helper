@@ -4,6 +4,7 @@ import os
 os.system("pip install -r requirements.txt")
 
 import discord
+from discord.ext import commands
 import config
 import version
 from keep_alive import keep_alive
@@ -12,39 +13,6 @@ from utils import emoji
 from rumble_royale.rumble_royale_handler import RumbleRoyaleHandler
 from pixxie_bot.pixxie_bot_handler import PixxieBotHandler
 
-class MyClient(discord.Client):
-    def __init__(self, *, intents):
-        super().__init__(intents=intents)
-        self.rumble_royale_handler = RumbleRoyaleHandler()
-        self.pixxie_bot_handler = PixxieBotHandler(self)
-
-    async def on_ready(self):
-        print(f'{emoji.CHECKMARK} Der Bot mit Version {version.__version__} ist eingeloggt als {self.user}')
-        scheduler = Scheduler(client)
-        client.loop.create_task(scheduler.start())
-
-    async def on_message(self, message):
-        """Wird aufgerufen, wenn eine neue Nachricht gesendet wird."""
-        # Ignoriere Message vom Bot selber
-        if message.author == self.user:
-            return
-        if message.author.bot:  # Reagiere nur auf bestimmte Bots
-            if message.author.id == config.BOT_APP_ID_RUMBLE_ROYALE:
-                await self.rumble_royale_handler.handle_message(message)
-            elif message.author.id == config.BOT_APP_ID_PIXXIE_BOT:
-                await self.pixxie_bot_handler.handle_message(None, message)
-
-    async def on_message_edit(self, before, after):
-        """Wird aufgerufen, wenn eine Nachricht bearbeitet wird."""
-        # Ignoriere Message vom Bot selber
-        if after.author == self.user:
-            return
-        if after.author.bot: # Reagiere nur auf bestimmte Bots
-            if after.author.id == config.BOT_APP_ID_RUMBLE_ROYALE:
-                await self.rumble_royale_handler.handle_message(after)
-            elif after.author.id == config.BOT_APP_ID_PIXXIE_BOT:
-                await self.pixxie_bot_handler.handle_message(before, after)
-
 # Intents aktivieren
 intents = discord.Intents.default()
 intents.messages = True
@@ -52,7 +20,62 @@ intents.guilds = True
 intents.members = True
 intents.message_content = True
 
-client = MyClient(intents=intents)
+# Bot-Client mit Command-Unterstützung erstellen
+bot = commands.Bot(command_prefix="!", intents=intents)
+
+# Event: Bot ist bereit
+@bot.event
+async def on_ready():
+    print(f'{emoji.CHECK_MARK} Der Bot mit Version {version.__version__} ist eingeloggt als {bot.user}')
+    bot.rumble_royale_handler = RumbleRoyaleHandler()
+    bot.pixxie_bot_handler = PixxieBotHandler(bot)
+    scheduler = Scheduler(bot)
+    bot.loop.create_task(scheduler.start())
+    await bot.tree.sync()  # Synchronisiert die Slash-Commands
+    print(f'{emoji.CHECK_MARK} Slash-Commands synchronisiert')
+
+# Slash-Command: Version abrufen
+# Zeigt die aktuelle Bot-Version
+@bot.tree.command(name="version", description="Shows the current bot version")
+async def version_command(interaction: discord.Interaction):
+    await interaction.response.send_message(f"{emoji.ROBOT}{emoji.BABY_CHICK} **Nuggie's Little Helper** runs with version `{version.__version__}`")
+
+# Slash-Command: Ping abrufen
+# Testet die Bot-Verbindung
+@bot.tree.command(name="ping", description="Tests the bot connection")
+async def ping_command(interaction: discord.Interaction):
+    latency = round(bot.latency * 1000)
+    await interaction.response.send_message(f'{emoji.PING_PONG_PADDLE} Pong! Latency: `{latency}ms`')
+
+# Event: Nachricht erhalten
+@bot.event
+async def on_message(message):
+    if message.author == bot.user:
+        return  # Ignoriere eigene Nachrichten
+    if message.author.bot:
+        if message.author.id == config.BOT_APP_ID_RUMBLE_ROYALE:
+            await bot.rumble_royale_handler.handle_message(message)
+        elif message.author.id == config.BOT_APP_ID_PIXXIE_BOT:
+            await bot.pixxie_bot_handler.handle_message(None, message)
+    await bot.process_commands(message)  # Erlaubt das Verarbeiten von !-Befehlen
+
+# Event: Nachricht bearbeitet
+@bot.event
+async def on_message_edit(before, after):
+    if after.author == bot.user:
+        return
+    if after.author.bot:
+        if after.author.id == config.BOT_APP_ID_RUMBLE_ROYALE:
+            await bot.rumble_royale_handler.handle_message(after)
+        elif after.author.id == config.BOT_APP_ID_PIXXIE_BOT:
+            await bot.pixxie_bot_handler.handle_message(before, after)
+
+# Auf Fehler reagieren
+# zum Beispiel "Diesen Befehl kenne ich nicht!"
+@bot.event
+async def on_command_error(ctx, error):
+    if isinstance(error, commands.CommandNotFound):
+        await ctx.send(f"{emoji.CROSS_MARK} I don't know this command: {ctx.message.content}")
 
 # Bot starten
-client.run(config.BOT_TOKEN)
+bot.run(config.BOT_TOKEN)
