@@ -5,6 +5,7 @@ os.system("pip install -r requirements.txt")
 
 import discord
 import config
+import version
 from keep_alive import keep_alive
 from scheduler import Scheduler
 from utils import emoji
@@ -18,7 +19,7 @@ class MyClient(discord.Client):
         self.pixxie_bot_handler = PixxieBotHandler(self)
 
     async def on_ready(self):
-        print(f'{emoji.CHECKMARK} Bot ist eingeloggt als {self.user}')
+        print(f'{emoji.CHECKMARK} Der Bot mit Version {version.__version__} ist eingeloggt als {self.user}')
         scheduler = Scheduler(client)
         client.loop.create_task(scheduler.start())
 
