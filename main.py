@@ -75,7 +75,8 @@ async def on_message_edit(before, after):
 @bot.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.CommandNotFound):
-        await ctx.send(f"{emoji.CROSS_MARK} I don't know this command: {ctx.message.content}")
+        #await ctx.send(f"{emoji.CROSS_MARK} I don't know this command: {ctx.message.content}")
+        return # die obere Zeile ist fürs debuggen gut, aber momentan ist es nicht notwendig.
 
 # Bot starten
 bot.run(config.BOT_TOKEN)
