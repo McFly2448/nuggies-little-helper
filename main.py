@@ -12,6 +12,7 @@ from scheduler import Scheduler
 from utils import emoji
 from rumble_royale.rumble_royale_handler import RumbleRoyaleHandler
 from pixxie_bot.pixxie_bot_handler import PixxieBotHandler
+from coordle.coordle_handler import CoordleHandler
 
 # Intents aktivieren
 intents = discord.Intents.default()
@@ -29,6 +30,7 @@ async def on_ready():
     print(f'{emoji.CHECK_MARK} Der Bot mit Version {version.__version__} ist eingeloggt als {bot.user}')
     bot.rumble_royale_handler = RumbleRoyaleHandler()
     bot.pixxie_bot_handler = PixxieBotHandler(bot)
+    bot.coordle_handler = CoordleHandler()
     scheduler = Scheduler(bot)
     bot.loop.create_task(scheduler.start())
     await bot.tree.sync()  # Synchronisiert die Slash-Commands
@@ -57,6 +59,8 @@ async def on_message(message):
             await bot.rumble_royale_handler.handle_message(message)
         elif message.author.id == config.BOT_APP_ID_PIXXIE_BOT:
             await bot.pixxie_bot_handler.handle_message(None, message)
+        elif message.author.id == config.BOT_APP_ID_COORDLE:
+            await bot.coordle_handler.handle_message(message)
     await bot.process_commands(message)  # Erlaubt das Verarbeiten von !-Befehlen
 
 # Event: Nachricht bearbeitet
@@ -69,6 +73,8 @@ async def on_message_edit(before, after):
             await bot.rumble_royale_handler.handle_message(after)
         elif after.author.id == config.BOT_APP_ID_PIXXIE_BOT:
             await bot.pixxie_bot_handler.handle_message(before, after)
+        elif after.author.id == config.BOT_APP_ID_COORDLE:
+            await bot.coordle_handler.handle_message(after)
 
 # Auf Fehler reagieren
 # zum Beispiel "Diesen Befehl kenne ich nicht!"

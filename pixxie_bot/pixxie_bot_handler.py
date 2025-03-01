@@ -15,7 +15,7 @@ class PixxieBotHandler:
         if messageNew.author.id != pixxie_bot_config.BOT_APP_ID:
             return  # Ignorieren, wenn es nicht der gesuchte Benutzer ist
         
-        """Verarbeitet Nachrichten vom Hangry Games Bot"""
+        """Verarbeitet Nachrichten vom Pixxie Bot"""
         if messageNew.embeds:
             for embed in messageNew.embeds:
                 # Reagiere auf ein Hangry Games Start

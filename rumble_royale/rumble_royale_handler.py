@@ -54,5 +54,3 @@ class RumbleRoyaleHandler:
                         if command_user:
                             await channel.send(f"Hey {command_user.mention}, don't forget to start the next battle with `/battle`!")
                             return  # Stoppe, sobald der erste Treffer gefunden wurde
-
-
