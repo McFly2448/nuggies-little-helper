@@ -28,9 +28,9 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 @bot.event
 async def on_ready():
     print(f'{emoji.CHECK_MARK} Der Bot mit Version {version.__version__} ist eingeloggt als {bot.user}')
-    bot.rumble_royale_handler = RumbleRoyaleHandler()
+    bot.rumble_royale_handler = RumbleRoyaleHandler(bot)
     bot.pixxie_bot_handler = PixxieBotHandler(bot)
-    bot.coordle_handler = CoordleHandler()
+    bot.coordle_handler = CoordleHandler(bot)
     scheduler = Scheduler(bot)
     bot.loop.create_task(scheduler.start())
     await bot.tree.sync()  # Synchronisiert die Slash-Commands
@@ -56,11 +56,11 @@ async def on_message(message):
         return  # Ignoriere eigene Nachrichten
     if message.author.bot:
         if message.author.id == config.BOT_APP_ID_RUMBLE_ROYALE:
-            await bot.rumble_royale_handler.handle_message(message)
+            await bot.rumble_royale_handler.handle_message(None, message)
         elif message.author.id == config.BOT_APP_ID_PIXXIE_BOT:
             await bot.pixxie_bot_handler.handle_message(None, message)
         elif message.author.id == config.BOT_APP_ID_COORDLE:
-            await bot.coordle_handler.handle_message(message)
+            await bot.coordle_handler.handle_message(None, message)
     await bot.process_commands(message)  # Erlaubt das Verarbeiten von !-Befehlen
 
 # Event: Nachricht bearbeitet
@@ -70,11 +70,11 @@ async def on_message_edit(before, after):
         return
     if after.author.bot:
         if after.author.id == config.BOT_APP_ID_RUMBLE_ROYALE:
-            await bot.rumble_royale_handler.handle_message(after)
+            await bot.rumble_royale_handler.handle_message(before, after)
         elif after.author.id == config.BOT_APP_ID_PIXXIE_BOT:
             await bot.pixxie_bot_handler.handle_message(before, after)
         elif after.author.id == config.BOT_APP_ID_COORDLE:
-            await bot.coordle_handler.handle_message(after)
+            await bot.coordle_handler.handle_message(before, after)
 
 # Auf Fehler reagieren
 # zum Beispiel "Diesen Befehl kenne ich nicht!"

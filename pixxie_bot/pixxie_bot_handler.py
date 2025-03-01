@@ -9,7 +9,7 @@ from utils.mention_utils import MentionUtils
 
 class PixxieBotHandler:
     def __init__(self, bot: commands.Bot):
-        self.bot = bot  # Speichert den Bot-Client
+        self.bot = bot  # Speichert den Bot
 
     async def handle_message(self, messageOld: discord.Message, messageNew: discord.Message):
         if messageNew.author.id != pixxie_bot_config.BOT_APP_ID:

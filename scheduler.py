@@ -1,18 +1,19 @@
 import discord
+from discord.ext import commands
 import asyncio
 import config
 from utils import emoji
 from pixxie_bot.pixxie_bot_handler import PixxieBotHandler
 
 class Scheduler:
-    def __init__(self, client: discord.Client):
+    def __init__(self, bot: commands.bot):
         super().__init__()
-        self.client = client
-        self.pixxie_bot_handler = PixxieBotHandler(client)
+        self.bot = bot
+        self.pixxie_bot_handler = PixxieBotHandler(bot)
 
     async def start(self):
-        await self.client.wait_until_ready() # Sicherstellen, dass der Bot bereit ist
-        while not self.client.is_closed():
+        await self.bot.wait_until_ready() # Sicherstellen, dass der Bot bereit ist
+        while not self.bot.is_closed():
             try:
                 await self.check_hangry_games()
             except Exception as e:
