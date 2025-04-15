@@ -14,6 +14,9 @@ from rumble_royale.rumble_royale_handler import RumbleRoyaleHandler
 from pixxie_bot.pixxie_bot_handler import PixxieBotHandler
 from coordle.coordle_handler import CoordleHandler
 
+import tracemalloc
+tracemalloc.start()
+
 # Intents aktivieren
 intents = discord.Intents.default()
 intents.messages = True
