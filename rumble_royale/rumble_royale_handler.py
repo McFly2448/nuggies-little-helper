@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 from . import rumble_royale_config
 from utils import emoji
+from utils.bot_utils import BotUtils
 from utils.role_utils import RoleUtils
 from utils.user_utils import UserUtils
 
@@ -13,6 +14,9 @@ class RumbleRoyaleHandler:
         if messageNew.author.id != rumble_royale_config.BOT_APP_ID:
             return  # Ignorieren, wenn es nicht der gesuchte Benutzer ist
         
+        if await BotUtils.has_bot_a_messages_after_bot_b(messageNew.channel, self.bot.user.id, rumble_royale_config.BOT_APP_ID):
+            return  # Ignorieren, wenn der eigene Bot bereits Nachrichten NACH der letzten Rumble Royale Bot Message geschrieben hatte
+
         """Verarbeitet Nachrichten vom Rumble Royale Bot"""
         if messageNew.embeds:
             for embed in messageNew.embeds:

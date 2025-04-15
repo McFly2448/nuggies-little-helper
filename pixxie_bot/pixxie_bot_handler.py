@@ -3,6 +3,7 @@ from discord.ext import commands
 from datetime import datetime, timezone, timedelta
 from . import pixxie_bot_config
 from utils import emoji
+from utils.bot_utils import BotUtils
 from utils.role_utils import RoleUtils
 from utils.user_utils import UserUtils
 from utils.mention_utils import MentionUtils
@@ -14,6 +15,9 @@ class PixxieBotHandler:
     async def handle_message(self, messageOld: discord.Message, messageNew: discord.Message):
         if messageNew.author.id != pixxie_bot_config.BOT_APP_ID:
             return  # Ignorieren, wenn es nicht der gesuchte Benutzer ist
+        
+        if await BotUtils.has_bot_a_messages_after_bot_b(messageNew.channel, self.bot.user.id, pixxie_bot_config.BOT_APP_ID):
+            return  # Ignorieren, wenn der eigene Bot bereits Nachrichten NACH der letzten Pixxie Bot Nachricht geschrieben hatte
         
         """Verarbeitet Nachrichten vom Pixxie Bot"""
         if messageNew.embeds:

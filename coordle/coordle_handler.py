@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 from . import coordle_config
 from utils import emoji
+from utils.bot_utils import BotUtils
 
 class CoordleHandler:
     def __init__(self, bot: commands.Bot):
@@ -10,6 +11,9 @@ class CoordleHandler:
     async def handle_message(self, messageOld: discord.Message, messageNew: discord.Message):
         if messageNew.author.id != coordle_config.BOT_APP_ID:
             return  # Ignorieren, wenn es nicht der gesuchte Benutzer ist
+        
+        if await BotUtils.has_bot_a_messages_after_bot_b(messageNew.channel, self.bot.user.id, coordle_config.BOT_APP_ID):
+            return  # Ignorieren, wenn der eigene Bot bereits Nachrichten NACH der letzten Coordle Bot Nachricht geschrieben hatte
         
         """Verarbeitet Nachrichten vom Coordle Bot"""
         if messageNew.embeds:
