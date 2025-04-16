@@ -1,19 +1,30 @@
 import discord
 from discord.ext import commands
 from . import coordle_config
+from logger_config import setup_logger
 from utils import emoji
 from utils.bot_utils import BotUtils
 
 class CoordleHandler:
+    # Logger initialisieren
+    logger = setup_logger(__name__)
+
     def __init__(self, bot: commands.Bot):
         self.bot = bot  # Speichert den Bot
 
     async def handle_message(self, messageOld: discord.Message, messageNew: discord.Message):
         if messageNew.author.id != coordle_config.BOT_APP_ID:
+            self.logger.debug(f"Die Nachricht <{messageNew.content}> hat den falschen Author {messageNew.author.name}")
             return  # Ignorieren, wenn es nicht der gesuchte Benutzer ist
         
         if await BotUtils.has_bot_a_messages_after_bot_b(messageNew.channel, self.bot.user.id, coordle_config.BOT_APP_ID):
+            self.logger.debug(f"Dieser Bot mit ID {self.bot.user.id} hat im Kanal {messageNew.channel.name} nach dem Coordle Bot eine Nachricht geschrieben, von daher ist keine Verarbeitung notwendig")
             return  # Ignorieren, wenn der eigene Bot bereits Nachrichten NACH der letzten Coordle Bot Nachricht geschrieben hatte
+
+        if not messageOld:
+            self.logger.debug(f"Verarbeite im Kanal {messageNew.channel.name} die neue Message <{messageNew.content}>")
+        else:
+            self.logger.debug(f"Verarbeite im Kanal {messageNew.channel.name} die Editierung der alten Message <{messageOld.content}> zur neuen Message <{messageNew.content}>")
         
         """Verarbeitet Nachrichten vom Coordle Bot"""
         if messageNew.embeds:

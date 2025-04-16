@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 from datetime import datetime, timezone, timedelta
 from . import pixxie_bot_config
+from logger_config import setup_logger
 from utils import emoji
 from utils.bot_utils import BotUtils
 from utils.role_utils import RoleUtils
@@ -9,16 +10,26 @@ from utils.user_utils import UserUtils
 from utils.mention_utils import MentionUtils
 
 class PixxieBotHandler:
+    # Logger initialisieren
+    logger = setup_logger(__name__)
+    
     def __init__(self, bot: commands.Bot):
         self.bot = bot  # Speichert den Bot
 
     async def handle_message(self, messageOld: discord.Message, messageNew: discord.Message):
         if messageNew.author.id != pixxie_bot_config.BOT_APP_ID:
+            self.logger.debug(f"Die Nachricht <{messageNew.content}> hat den falschen Author {messageNew.author.name}")
             return  # Ignorieren, wenn es nicht der gesuchte Benutzer ist
         
         if await BotUtils.has_bot_a_messages_after_bot_b(messageNew.channel, self.bot.user.id, pixxie_bot_config.BOT_APP_ID):
+            self.logger.debug(f"Dieser Bot mit ID {self.bot.user.id} hat im Kanal {messageNew.channel.name} nach dem Pixxie Bot eine Nachricht geschrieben, von daher ist keine Verarbeitung notwendig")
             return  # Ignorieren, wenn der eigene Bot bereits Nachrichten NACH der letzten Pixxie Bot Nachricht geschrieben hatte
-        
+
+        if not messageOld:
+            self.logger.debug(f"Verarbeite im Kanal {messageNew.channel.name} die neue Message <{messageNew.content}>")
+        else:
+            self.logger.debug(f"Verarbeite im Kanal {messageNew.channel.name} die Editierung der alten Message <{messageOld.content}> zur neuen Message <{messageNew.content}>")
+
         """Verarbeitet Nachrichten vom Pixxie Bot"""
         if messageNew.embeds:
             for embed in messageNew.embeds:
@@ -32,6 +43,7 @@ class PixxieBotHandler:
     # Pixxie Bot - Hangry Games - Start Nachricht
     #
     async def on_command_hangrygames_new(self, messageOld: discord.Message, messageNew: discord.Message, embed: discord.Embed):
+        self.logger.debug(f"Es wird im Kanal {messageNew.channel.name} geprüft, ob die Message <{messageNew.content}> mit dem Embed Titel <{embed.title}> ein neues hangry games initiiert wurde")
         # Es darf nur bei der Neuanlage der Nachricht (messageOld == None) reagieren. 
         # Ist die messageOld vorhanden, dann ist es keine Neuanlage und man verlässt die Methode
         # Und es braucht einen embed mit title und description
@@ -41,7 +53,7 @@ class PixxieBotHandler:
         if await self.is_hangry_games_start_embed(embed):
             role_ping = RoleUtils.find_role_by_guild(pixxie_bot_config.ROLE_HANGRY_GAMES_PING_IDS, messageNew.guild)
             if not role_ping:
-                print(f'Hangry Games Role Ping nicht gefunden')
+                self.logger.error(f'Hangry Games Role Ping nicht gefunden')
                 return
             await messageNew.channel.send(f'{role_ping.mention} - a new hangry games has been initiated!')
     
@@ -81,6 +93,7 @@ class PixxieBotHandler:
     # Schickt einen Reminder, einer laufenden Hangry Games Partie beizutreten
     #
     async def send_reminder_for_hangry_games(self):
+        self.logger.debug(f"initiiert das Versenden einer Erinnerung für hangry games")
         for channel_id, mention_id in pixxie_bot_config.MENTION_HANGRY_GAMES_REMINDER_IDS.items():
             await self.send_reminder_for_hangry_games_in_channel(channel_id, mention_id)
 
@@ -88,21 +101,22 @@ class PixxieBotHandler:
     # Schickt einen Reminder, einer laufenden Hangry Games Partie beizutreten
     #
     async def send_reminder_for_hangry_games_in_channel(self, channel_id: int, mention_id: int):
+        self.logger.debug(f"initiiert das Versenden einer Erinnerung für hangry games im Kanal mit ID {channel_id}")
         """Liest Nachrichten, bis das Kriterium erfüllt ist oder alle Nachrichten durch sind."""
         channel = self.bot.get_channel(channel_id)
         if not channel:
             channel = await self.bot.fetch_channel(channel_id)
         if not channel:
-            print(f"Fehler: Kanal {channel_id} nicht gefunden.")
+            self.logger.error(f"Fehler: Kanal {channel_id} nicht gefunden.")
             return
         
         if not mention_id:
-            print(f'Mention-ID nicht gefunden')
+            self.logger.error(f'Mention-ID nicht gefunden')
             return
         
         mention = MentionUtils.get_mention(channel.guild, mention_id)
         if not mention:
-            print(f'Mention nicht gefunden')
+            self.logger.error(f'Mention nicht gefunden')
             return
 
         now = datetime.now(timezone.utc)
@@ -119,15 +133,18 @@ class PixxieBotHandler:
             for message in messages:
                 if message.author.id == self.bot.user.id and message.content.startswith("Hey ") and message.content.endswith(" don't forget to join!"):
                     # Wenn man die letzte Erinnerung findet, dann ist eine erneute Erinnerung nicht notwendig
+                    self.logger.debug("Ein erneutes erinnern für hangry games ist nicht notwendig, da bereits eine Erinnerung existiert")
                     return
                 
                 if message.author.id == pixxie_bot_config.BOT_APP_ID and message.embeds:
                     for embed in message.embeds:
                         if await self.is_hangry_games_winner_embed(embed):
                             # Wenn man die Gewinner-Nachricht findet, dann gibt es kein laufendes Hangry Games
+                            self.logger.debug("Ein erneutes erinnern für hangry games ist nicht notwendig, da noch kein neues hangry games gestartet wurde")
                             return
                         if await self.is_hangry_games_cancel_embed(embed):
                             # Wenn man die Cancel-Nachricht findet, dann gibt es kein laufendes Hangry Games
+                            self.logger.debug("Ein erneutes erinnern für hangry games ist nicht notwendig, da das hangry games abgebrochen wurde")
                             return
                         if await self.is_hangry_games_start_embed(embed):
                             if message.created_at < cutoff_time:

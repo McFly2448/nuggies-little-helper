@@ -4,6 +4,10 @@ import requests
 import time
 import random
 import os
+from logger_config import setup_logger
+
+# Logger initialisieren
+logger = setup_logger(__name__)
 
 app = Flask(__name__)
 
@@ -25,13 +29,13 @@ def self_ping():
     while True:
         try:
             response = requests.get(KEEP_ALIVE_URL)
-            print("Pinged self to stay awake! Status:", response.status_code)
+            logger.info("Pinged self to stay awake! Status:", response.status_code)
         except Exception as e:
-            print(f"Ping failed: {e}")
+            logger.error(f"Ping failed: {e}")
 
         # Zufällige Wartezeit zwischen 1 und 5 Minuten
         sleep_time = random.randint(60, 300)
-        print(f"Nächster Ping in {sleep_time} Sekunden...")
+        logger.info(f"Nächster Ping in {sleep_time} Sekunden...")
         time.sleep(sleep_time)
 
 def emergency_wakeup():
@@ -44,7 +48,7 @@ def emergency_wakeup():
             if response.status_code == 200:
                 continue  # Alles gut, nichts tun
         except:
-            print("WARNUNG: Server scheint down zu sein! Versuche Selbst-Reaktivierung...")
+            logger.warning("WARNUNG: Server scheint down zu sein! Versuche Selbst-Reaktivierung...")
             os.system(f"curl {KEEP_ALIVE_URL} > /dev/null 2>&1")
 
 # Starte alles beim Import dieser Datei
@@ -52,9 +56,9 @@ def emergency_wakeup():
 RUN_KEEP_ALIVE = os.getenv("RUN_KEEP_ALIVE", "false").lower() == "true"
 
 if RUN_KEEP_ALIVE:
-    print("🚀 Keep-Alive aktiviert (Replit-Umgebung erkannt)")
+    logger.info("🚀 Keep-Alive aktiviert (Replit-Umgebung erkannt)")
     keep_alive()
     Thread(target=self_ping, daemon=True).start()
     Thread(target=emergency_wakeup, daemon=True).start()
 else:
-    print("🛑 Keep-Alive deaktiviert (Lokale Umgebung erkannt)")
+    logger.info("🛑 Keep-Alive deaktiviert (Lokale Umgebung erkannt)")

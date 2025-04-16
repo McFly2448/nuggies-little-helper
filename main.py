@@ -10,6 +10,7 @@ import version
 from keep_alive import keep_alive
 from scheduler import Scheduler
 from utils import emoji
+from logger_config import setup_logger
 from rumble_royale.rumble_royale_handler import RumbleRoyaleHandler
 from pixxie_bot.pixxie_bot_handler import PixxieBotHandler
 from coordle.coordle_handler import CoordleHandler
@@ -27,17 +28,20 @@ intents.message_content = True
 # Bot-Client mit Command-Unterstützung erstellen
 bot = commands.Bot(command_prefix="!", intents=intents)
 
+# Logger initialisieren
+logger = setup_logger(__name__)
+
 # Event: Bot ist bereit
 @bot.event
 async def on_ready():
-    print(f'{emoji.CHECK_MARK} Der Bot mit Version {version.__version__} ist eingeloggt als {bot.user}')
+    logger.info(f'{emoji.CHECK_MARK} Der Bot mit Version {version.__version__} ist eingeloggt als {bot.user}')
     bot.rumble_royale_handler = RumbleRoyaleHandler(bot)
     bot.pixxie_bot_handler = PixxieBotHandler(bot)
     bot.coordle_handler = CoordleHandler(bot)
     scheduler = Scheduler(bot)
     bot.loop.create_task(scheduler.start())
     await bot.tree.sync()  # Synchronisiert die Slash-Commands
-    print(f'{emoji.CHECK_MARK} Slash-Commands synchronisiert')
+    logger.info(f'{emoji.CHECK_MARK} Slash-Commands synchronisiert')
 
 # Slash-Command: Version abrufen
 # Zeigt die aktuelle Bot-Version
