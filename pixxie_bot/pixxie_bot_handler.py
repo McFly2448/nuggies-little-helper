@@ -133,18 +133,18 @@ class PixxieBotHandler:
             for message in messages:
                 if message.author.id == self.bot.user.id and message.content.startswith("Hey ") and message.content.endswith(" don't forget to join!"):
                     # Wenn man die letzte Erinnerung findet, dann ist eine erneute Erinnerung nicht notwendig
-                    self.logger.debug("Ein erneutes erinnern für hangry games ist nicht notwendig, da bereits eine Erinnerung existiert")
+                    self.logger.debug(f"Ein erneutes erinnern für hangry games im Kanal {channel.name} ist nicht notwendig, da bereits eine Erinnerung existiert")
                     return
                 
                 if message.author.id == pixxie_bot_config.BOT_APP_ID and message.embeds:
                     for embed in message.embeds:
                         if await self.is_hangry_games_winner_embed(embed):
                             # Wenn man die Gewinner-Nachricht findet, dann gibt es kein laufendes Hangry Games
-                            self.logger.debug("Ein erneutes erinnern für hangry games ist nicht notwendig, da noch kein neues hangry games gestartet wurde")
+                            self.logger.debug(f"Ein erneutes erinnern für hangry games im Kanal {channel.name} ist nicht notwendig, da noch kein neues hangry games gestartet wurde")
                             return
                         if await self.is_hangry_games_cancel_embed(embed):
                             # Wenn man die Cancel-Nachricht findet, dann gibt es kein laufendes Hangry Games
-                            self.logger.debug("Ein erneutes erinnern für hangry games ist nicht notwendig, da das hangry games abgebrochen wurde")
+                            self.logger.debug(f"Ein erneutes erinnern für hangry games im Kanal {channel.name} ist nicht notwendig, da das hangry games abgebrochen wurde")
                             return
                         if await self.is_hangry_games_start_embed(embed):
                             if message.created_at < cutoff_time:

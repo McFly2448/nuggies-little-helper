@@ -10,7 +10,7 @@ class RoleUtils:
 
     @staticmethod
     def find_role_by_id(roles: Sequence[discord.Role], role_id: int) -> Optional[discord.Role]:
-        RoleUtils.logger.debug(f"RoleUtils sucht die Rolle mit ID {id} innerhalb der übergebenen Sequence")
+        RoleUtils.logger.debug(f"RoleUtils sucht die Rolle mit ID {role_id} innerhalb der übergebenen Sequence")
         return discord.utils.get(roles, id=role_id)
     
     @staticmethod
